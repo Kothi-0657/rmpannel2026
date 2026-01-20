@@ -1,5 +1,6 @@
 import { useState } from "react";
 import logo from "../assets/logoa1.png";
+import { validateRMEmail } from "../services/auth";
 
 interface Props {
   onLogin: (email: string) => void;
@@ -7,13 +8,33 @@ interface Props {
 
 const Login: React.FC<Props> = ({ onLogin }) => {
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email) {
-      alert("Please enter your official email");
+      setError("Please enter your official email");
       return;
     }
-    onLogin(email);
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const allowed = await validateRMEmail(email);
+
+      if (!allowed) {
+        setError("You are not authorized to login");
+        return;
+      }
+
+      // ✅ pass ONLY email (string)
+      onLogin(email);
+    } catch (err) {
+      setError("Login failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -33,11 +54,22 @@ const Login: React.FC<Props> = ({ onLogin }) => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           style={styles.input}
+          disabled={loading}
         />
 
+        {/* Error */}
+        {error && <div style={styles.error}>{error}</div>}
+
         {/* Login Button */}
-        <button onClick={handleLogin} style={styles.button}>
-          Login
+        <button
+          onClick={handleLogin}
+          disabled={loading}
+          style={{
+            ...styles.button,
+            opacity: loading ? 0.6 : 1,
+          }}
+        >
+          {loading ? "Validating..." : "Login"}
         </button>
 
         {/* Footer note */}
@@ -94,9 +126,14 @@ const styles: { [key: string]: React.CSSProperties } = {
     border: "1px solid #374151",
     backgroundColor: "#1f2937",
     color: "#ffffff",
-    fontSize: 24,
+    fontSize: 14,
     outline: "none",
-    marginBottom: 16,
+    marginBottom: 12,
+  },
+  error: {
+    color: "#ef4444",
+    fontSize: 13,
+    marginBottom: 10,
   },
   button: {
     width: "100%",

@@ -5,6 +5,18 @@ interface Props {
   onSelect: (customer: any) => void;
 }
 
+// Format date → 18 January 2026
+const formatDate = (value: string) => {
+  if (!value) return "-";
+  const d = new Date(value);
+  return d.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+};
+
+
 const CustomerTable: React.FC<Props> = ({ customers, onSelect }) => {
   return (
     <div style={styles.wrapper}>
@@ -30,7 +42,7 @@ const CustomerTable: React.FC<Props> = ({ customers, onSelect }) => {
               <td style={styles.td}>{maskPhoneNumber(c.phone)}</td> {/* masked */}
               <td style={styles.td}>{c.status}</td>
               <td style={styles.td}>{c.subStatus}</td>
-              <td style={styles.td}>{c.followUpDate}</td>
+              <td style={styles.td}>{formatDate(c.followUpDate)}</td>
               <td style={styles.notesTd}>{c.notes || "-"}</td>
               <td style={{ ...styles.td, textAlign: "center" }}>
                 <button

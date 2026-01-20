@@ -102,6 +102,10 @@ function App() {
 
           {/* NAV LINKS */}
           <div style={styles.navLinks}>
+            <Link to="/" style={styles.navLink}>
+              Dashboard
+            </Link>
+
             <Link to="/customers" style={styles.navLink}>
               Customers
             </Link>
